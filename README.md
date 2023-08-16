@@ -1,28 +1,34 @@
-# Integrating Your Microsoft Sentinel Environment with Intezer
+# Integrating Microsoft Sentinel with Intezer
 
-This repository provides a comprehensive integration solution between your Microsoft Sentinel environment and Intezer's advanced threat detection and response (ADR) platform. By combining the capabilities of both tools, you can enhance your security operations and streamline incident response.
+This guide outlines the integration between Microsoft Sentinel and [Intezer](https://intezer.com/). 
+
+Intezer automatically monitors, investigates, and triages security alerts 24/7 for your team. Using automated analysis, smart recommendations, and auto-remediation, it saves your team from time wasted on false positives, repetitive analysis tasks, and an excess of escalated alerts. Integrating with Microsoft Sentinel can further enhance your security operations and efficiency.
+
+In this repository, you'll find playbooks to guide you through the integration process.
+
+For assistance, please contact Intezer's support team at [support@intezer.com](mailto:support@intezer.com).
 
 ## Playbook Descriptions
 
 ### Playbook 1: Update Incident - Intezer Alert Webhook
-**Trigger:** By HTTP request, every time Intezer finishes processing a Microsoft Defender alert.
+**Trigger:** HTTP request after Intezer finishes processing an alert.
 
-Assuming you have a running integration with Intezer's ADR solution and Microsoft Defender, this playbook triggers whenever Intezer completes alert processing. It appends a relevant comment to the corresponding incident within Microsoft Sentinel.
+Assuming you've [connected Microsoft Defender to Intezer](https://support.intezer.com/hc/en-us/articles/7431169050652), this playbook triggers whenever Intezer completes alert processing. It appends a context-specific comment to the corresponding incident in Microsoft Sentinel, linking insights from Intezer.
 
 ### Playbook 2: Submit Intezer Alert - Incident Triggered
-**Trigger:** New incident created in Microsoft Sentinel.
+**Trigger:** Creation of a new incident in Microsoft Sentinel.
 
-This playbook utilizes Microsoft Sentinel incident details to generate an alert within Intezer's system.
+This playbook forwards the details of a new Microsoft Sentinel incident, including associated file hashes and network artifacts, to Intezer for analysis and processing.
 
 ### Playbook 3: Submit Intezer Scan File Hash - Incident Triggered
-**Trigger:** New incident created in Microsoft Sentinel.
+**Trigger:** Creation of a new incident in Microsoft Sentinel.
 
-This playbook retrieves file hashes from the Microsoft Sentinel incident, forwards them to Intezer Analyze, and appends a comment containing the resulting verdict back to the incident.
+This playbook extracts file hashes from the Microsoft Sentinel incident, then forwards them to Intezer for in-depth analysis. A comment containing Intezer's verdict is appended back to the incident, ensuring that all relevant information is accessible in one place.
 
 ### Playbook 4: Submit Intezer Scan URL - Incident Triggered
-**Trigger:** New incident created in Microsoft Sentinel.
+**Trigger:** Creation of a new incident in Microsoft Sentinel.
 
-This playbook retrieves URLs from the Microsoft Sentinel incident, forwards them to Intezer Analyze, and appends a comment containing the resulting verdict back to the incident.
+This playbook extracts associated URLs from the Microsoft Sentinel incident, then forwards them to Intezer for in-depth analysis. A comment containing Intezer's verdict is appended back to the incident, ensuring that all relevant information is accessible in one place.
 
 ## Quick Deployment
 Before deploying, please review the [deployment prerequisites](#deployment-prerequisites).
