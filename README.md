@@ -30,6 +30,7 @@ Before deploying, please review the [deployment prerequisites](#deployment-prere
 After deployment, please review the [deployment postrequisites](#deployment-postrequisites).
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fintezer%2Fmicrosoft-sentinel-integration%2Fmain%2Fplaybooks%2Fazuredeploy.json)
+<br/>
 ![Image Alt Text](.github/assets/images/sentinel-11.png)
 
 ### Deployment Prerequisites
