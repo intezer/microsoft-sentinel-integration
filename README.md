@@ -31,6 +31,8 @@ This playbook extracts file hashes from the Microsoft Sentinel incident, then fo
 This playbook extracts associated URLs from the Microsoft Sentinel incident, then forwards them to Intezer for in-depth analysis. A comment containing Intezer's verdict is appended back to the incident, ensuring that all relevant information is accessible in one place.
 
 ## Quick Deployment
+> **_Important note:_**  Please note that deploying requires manual setup before and after, including prerequisites and postrequisites. Ensure that the individual performing the deployment in the Azure environment has powerful permissions.
+
 Before deploying, please review the [deployment prerequisites](#deployment-prerequisites).
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fintezer%2Fmicrosoft-sentinel-integration%2Fmain%2Fplaybooks%2Fazuredeploy.json)
