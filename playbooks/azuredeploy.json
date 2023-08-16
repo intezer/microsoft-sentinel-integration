@@ -363,7 +363,7 @@
                                         "evidences": "@variables('evidences')",
                                         "severity": "@triggerBody()?['object']?['properties']?['severity']"
                                     },
-                                    "alert_source": "microsoft-sentinel",
+                                    "alert_source": "microsoft_sentinel",
                                     "definition_mapping": {
                                         "alert_id": {
                                             "from_path": "$.alert_id"
@@ -925,7 +925,7 @@
                                     "inputs": {
                                         "body": {
                                             "hash": "@body('Parse_JSON_FileHash')?['hashValue']",
-                                            "requester": "ms_sentinel"
+                                            "requester": "microsoft_sentinel"
                                         },
                                         "headers": {
                                             "Authorization": "Bearer @{body('Parse_JSON')?['result']}"
@@ -1348,7 +1348,7 @@
                                 "HTTP_2": {
                                     "inputs": {
                                         "body": {
-                                            "source": "ms-sentinel",
+                                            "source": "microsoft_sentinel",
                                             "url": "@body('Parse_JSON_2')?['url']"
                                         },
                                         "headers": {
