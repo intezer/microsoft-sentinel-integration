@@ -1,4 +1,4 @@
-# Integrating Your Microsoft Sentinel with Intezer
+# Integrating Microsoft Sentinel with Intezer
 
 This guide outlines the integration between Microsoft Sentinel and [Intezer](https://intezer.com/). 
 
