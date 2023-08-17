@@ -606,6 +606,20 @@
                             },
                             "type": "If"
                         },
+                        "Delay": {
+                            "inputs": {
+                                "interval": {
+                                    "count": 15,
+                                    "unit": "Minute"
+                                }
+                            },
+                            "runAfter": {
+                                "Compose_-_remove_\"da\"_from_alert_id_to_make_if_sentinel_alert_id": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Wait"
+                        },
                         "Initialize_edr_alert_id": {
                             "inputs": {
                                 "variables": [
@@ -718,7 +732,7 @@
                                 }
                             },
                             "runAfter": {
-                                "Compose_-_remove_\"da\"_from_alert_id_to_make_if_sentinel_alert_id": [
+                                "Delay": [
                                     "Succeeded"
                                 ]
                             },

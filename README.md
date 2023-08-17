@@ -114,15 +114,27 @@ After submitting the custom deployment, you need to perform some actions in your
     - Choose each one of the created playbooks. Note that you can't choose all of the playbooks at once, so you need to do that process for each playbook you want to activate.
     ![Image Alt Text](.github/assets/images/sentinel-36.png)
 
-4. Enable the Monitor Logs API Connection:
-   - Select **API Connections** in the Azure portal:  
-     ![Image Alt Text](.github/assets/images/sentinel-21.png)
-   - Search for and select **monitorlogs-intezer-connection** (it might be in an error status):  
-     ![Image Alt Text](.github/assets/images/sentinel-22.png)
-   - In the left menu bar, select **Edit API Connection**:  
-     ![Image Alt Text](.github/assets/images/sentinel-23.png)
-   - Authorize using your account and click Save:  
-     ![Image Alt Text](.github/assets/images/sentinel-24.png)
+4. (Relevant only for **Update Incident - Intezer Alert Webhook**) Enable the Monitor Logs API Connection:
+   - Navigate to **Logic apps** in the Azure portal:  
+     ![Image Alt Text](.github/assets/images/sentinel-25.png)
+
+   - Search and select **UpdateIncident-IntezerAlert-Webhook** logic app:<br/>
+     ![Image Alt Text](.github/assets/images/sentinel-26.png)
+
+    - On the left menu bar, select **Logic app designer**:<br/>
+     ![Image Alt Text](.github/assets/images/sentinel-27.png)
+
+    - Click on the **Connections** step, the one with the warning:<br/>
+    ![Image Alt Text](.github/assets/images/sentinel-38.png)
+
+    - Click on **Add new**:<br/>
+    ![Image Alt Text](.github/assets/images/sentinel-39.png)
+
+    - Enter a generic connection name and click **Sign in**:<br/>
+    ![Image Alt Text](.github/assets/images/sentinel-40.png)
+
+    - After submitting the connection, click **Save** on the left menu:<br/>
+    ![Image Alt Text](.github/assets/images/sentinel-41.png)
 
 5. (Relevant only for **Update Incident - Intezer Alert Webhook**) - Register the HTTP trigger.
     - The logic app is fired using an HTTP request every time Intezer alert is done processing Microsoft Defender alert.
