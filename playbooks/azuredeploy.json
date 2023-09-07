@@ -141,186 +141,66 @@
                         }
                     },
                     "actions": {
-                        "Entities_-_Get_FileHashes": {
-                            "runAfter": {
-                                "For_each": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "body": "@triggerBody()?['object']?['properties']?['relatedEntities']",
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/entities/filehash"
-                            }
-                        },
-                        "Entities_-_Get_IPs": {
-                            "runAfter": {
-                                "For_each_2": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "body": "@triggerBody()?['object']?['properties']?['relatedEntities']",
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/entities/ip"
-                            }
-                        },
-                        "Entities_-_Get_URLs": {
-                            "runAfter": {
-                                "Initialize_variable_-_evidences_array": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection",
-                            "inputs": {
-                                "body": "@triggerBody()?['object']?['properties']?['relatedEntities']",
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/entities/url"
-                            }
-                        },
-                        "For_each": {
-                            "foreach": "@body('Entities_-_Get_IPs')?['IPs']",
+                        "Condition": {
                             "actions": {
-                                "Append_to_array_variable": {
-                                    "runAfter": {
-                                        "Parse_JSON_-_extract_IP_address": [
-                                            "Succeeded"
-                                        ]
+                                "Terminate": {
+                                    "inputs": {
+                                        "runStatus": "Cancelled"
                                     },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "evidences",
-                                        "value": {
-                                            "type": "ip",
-                                            "value": "@body('Parse_JSON_-_extract_IP_address')?['address']"
-                                        }
-                                    }
-                                },
-                                "Parse_JSON_-_extract_IP_address": {
                                     "runAfter": {},
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@items('For_each')",
-                                        "schema": {
-                                            "properties": {
-                                                "address": {
-                                                    "type": "string"
+                                    "type": "Terminate"
+                                }
+                            },
+                            "else": {
+                                "actions": {
+                                    "Condition_2": {
+                                        "actions": {
+                                            "Terminate_2": {
+                                                "inputs": {
+                                                    "runError": {
+                                                        "code": "@{outputs('HTTP_-_Submit_alert')['statusCode']}",
+                                                        "message": "@{body('HTTP_-_Submit_alert')}"
+                                                    },
+                                                    "runStatus": "Failed"
+                                                },
+                                                "runAfter": {},
+                                                "type": "Terminate"
+                                            }
+                                        },
+                                        "expression": {
+                                            "and": [
+                                                {
+                                                    "greaterOrEquals": [
+                                                        "@outputs('HTTP_-_Submit_alert')['statusCode']",
+                                                        400
+                                                    ]
                                                 }
-                                            },
-                                            "type": "object"
-                                        }
+                                            ]
+                                        },
+                                        "runAfter": {},
+                                        "type": "If"
                                     }
                                 }
                             },
-                            "runAfter": {
-                                "Entities_-_Get_IPs": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Foreach"
-                        },
-                        "For_each_2": {
-                            "foreach": "@body('Entities_-_Get_URLs')?['URLs']",
-                            "actions": {
-                                "Append_to_array_variable_2": {
-                                    "runAfter": {
-                                        "Parse_JSON_2-_extract_URL": [
-                                            "Succeeded"
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@outputs('HTTP_-_Submit_alert')['statusCode']",
+                                            409
                                         ]
-                                    },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "evidences",
-                                        "value": {
-                                            "type": "url",
-                                            "value": "@body('Parse_JSON_2-_extract_URL')?['url']"
-                                        }
                                     }
-                                },
-                                "Parse_JSON_2-_extract_URL": {
-                                    "runAfter": {},
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@items('For_each_2')",
-                                        "schema": {
-                                            "properties": {
-                                                "url": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            },
-                            "runAfter": {
-                                "Entities_-_Get_URLs": [
-                                    "Succeeded"
                                 ]
                             },
-                            "type": "Foreach"
-                        },
-                        "For_each_3": {
-                            "foreach": "@body('Entities_-_Get_FileHashes')?['Filehashes']",
-                            "actions": {
-                                "Append_to_array_variable_3": {
-                                    "runAfter": {
-                                        "Parse_JSON_2": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "AppendToArrayVariable",
-                                    "inputs": {
-                                        "name": "evidences",
-                                        "value": {
-                                            "type": "file_hash",
-                                            "value": "@body('Parse_JSON_2')?['Value']"
-                                        }
-                                    }
-                                },
-                                "Parse_JSON_2": {
-                                    "runAfter": {},
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@items('For_each_3')",
-                                        "schema": {
-                                            "properties": {
-                                                "Value": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                }
-                            },
                             "runAfter": {
-                                "Entities_-_Get_FileHashes": [
-                                    "Succeeded"
+                                "HTTP_-_Submit_alert": [
+                                    "Succeeded",
+                                    "Failed"
                                 ]
                             },
-                            "type": "Foreach"
+                            "type": "If"
                         },
                         "Get_secret": {
-                            "runAfter": {},
-                            "type": "ApiConnection",
                             "inputs": {
                                 "host": {
                                     "connection": {
@@ -329,113 +209,47 @@
                                 },
                                 "method": "get",
                                 "path": "/secrets/@{encodeURIComponent('intezer-sentinel-api-key')}/value"
-                            }
-                        },
-                        "HTTP": {
-                            "runAfter": {
-                                "Get_secret": [
-                                    "Succeeded"
-                                ]
                             },
-                            "type": "Http",
+                            "runAfter": {},
+                            "type": "ApiConnection"
+                        },
+                        "HTTP_-_Get_access_token": {
                             "inputs": {
                                 "body": {
                                     "api_key": "@body('Get_secret')?['value']"
                                 },
                                 "method": "POST",
                                 "uri": "https://analyze.intezer.com/api/v2-0/get-access-token"
-                            }
-                        },
-                        "HTTP_2": {
+                            },
                             "runAfter": {
-                                "For_each_3": [
+                                "Get_secret": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Http",
+                            "type": "Http"
+                        },
+                        "HTTP_-_Submit_alert": {
                             "inputs": {
                                 "body": {
-                                    "alert": {
-                                        "alert_id": "@triggerBody()?['object']?['name']",
-                                        "alert_title": "@triggerBody()?['object']?['properties']?['title']",
-                                        "alert_url": "@triggerBody()?['object']?['properties']?['incidentUrl']",
-                                        "creation_time": "@triggerBody()?['object']?['properties']?['createdTimeUtc']",
-                                        "evidences": "@variables('evidences')",
-                                        "severity": "@triggerBody()?['object']?['properties']?['severity']"
-                                    },
-                                    "alert_source": "microsoft_sentinel",
-                                    "definition_mapping": {
-                                        "alert_id": {
-                                            "from_path": "$.alert_id"
-                                        },
-                                        "alert_title": {
-                                            "from_path": "$.alert_title"
-                                        },
-                                        "alert_type": {
-                                            "value": "endpoint"
-                                        },
-                                        "creation_time": {
-                                            "from_path": "$.creation_time"
-                                        },
-                                        "evidences": [
-                                            {
-                                                "evidence_type": {
-                                                    "from_path": "$.type"
-                                                },
-                                                "evidence_value": {
-                                                    "from_path": "$.value"
-                                                },
-                                                "list_path": "$.evidences"
-                                            }
-                                        ],
-                                        "severity": {
-                                            "from_path": "$.severity",
-                                            "value_map": {
-                                                "High": "high",
-                                                "Informational": "low",
-                                                "Low": "low",
-                                                "Medium": "medium"
-                                            }
-                                        }
-                                    },
-                                    "display_fields": [
-                                        "creation_time",
-                                        "alert_url"
-                                    ]
+                                    "alert": "@triggerBody()",
+                                    "alert_source": "microsoft_sentinel"
                                 },
                                 "headers": {
-                                    "Authorization": "Bearer @{body('Parse_JSON')?['result']}"
+                                    "Authorization": "Bearer @{body('Parse_JSON_-_Extract_access_token_from_response')?['result']}"
                                 },
                                 "method": "POST",
                                 "uri": "https://analyze.intezer.com/api/v2-0/alerts/ingest"
-                            }
-                        },
-                        "Initialize_variable_-_evidences_array": {
+                            },
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Parse_JSON_-_Extract_access_token_from_response": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable",
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "evidences",
-                                        "type": "array",
-                                        "value": []
-                                    }
-                                ]
-                            }
+                            "type": "Http"
                         },
-                        "Parse_JSON": {
-                            "runAfter": {
-                                "HTTP": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ParseJson",
+                        "Parse_JSON_-_Extract_access_token_from_response": {
                             "inputs": {
-                                "content": "@body('HTTP')",
+                                "content": "@body('HTTP_-_Get_access_token')",
                                 "schema": {
                                     "properties": {
                                         "result": {
@@ -445,13 +259,19 @@
                                     "type": "object"
                                 }
                             },
+                            "runAfter": {
+                                "HTTP_-_Get_access_token": [
+                                    "Succeeded"
+                                ]
+                            },
                             "runtimeConfiguration": {
                                 "secureData": {
                                     "properties": [
                                         "inputs"
                                     ]
                                 }
-                            }
+                            },
+                            "type": "ParseJson"
                         }
                     },
                     "outputs": {}
