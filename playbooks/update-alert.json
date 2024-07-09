@@ -34,7 +34,7 @@
     },
     "variables": {
         "AlertAzureSentinelConnectionName": "azuresentinel-intezer-connection",
-        "LogsMonitorConnectionName": "monitorlogs-intezer-connection"
+        "LogsMonitorConnectionName": "azuremonitorlogs-5"
     },
     "resources": [
         {
