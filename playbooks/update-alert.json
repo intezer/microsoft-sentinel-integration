@@ -184,7 +184,7 @@
                                     "body": "SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where VendorOriginalId in(\"@{body('Parse_JSON')?['microsoft_sentinel_incident_id']}\")",
                                     "host": {
                                         "connection": {
-                                            "name": "@parameters('$connections')['azuremonitorlogs-1']['connectionId']"
+                                            "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
                                         }
                                     },
                                     "method": "post",
@@ -227,7 +227,7 @@
                                         },
                                         "host": {
                                             "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel-1']['connectionId']"
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                             }
                                         },
                                         "method": "post",
@@ -247,7 +247,7 @@
                                         },
                                         "host": {
                                             "connection": {
-                                                "name": "@parameters('$connections')['azuresentinel-1']['connectionId']"
+                                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
                                             }
                                         },
                                         "method": "post",
