@@ -34,7 +34,7 @@
     },
     "variables": {
         "AlertAzureSentinelConnectionName": "azuresentinel-intezer-connection",
-        "LogsMonitorConnectionName": "azuremonitorlogs-5"
+        "LogsMonitorConnectionName": "monitorlogs-intezer-connection"
     },
     "resources": [
         {
@@ -63,7 +63,7 @@
               },
               "displayName": "azuremonitorlogs"
             }
-        },
+          },
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
@@ -80,278 +80,288 @@
             "properties": {
                 "state": "Enabled",
                 "definition": {
-                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                "contentVersion": "1.0.0.0",
+                "triggers": {
+                    "manual": {
+                    "type": "Request",
+                    "kind": "Http",
+                    "inputs": {
+                        "schema": {}
+                    }
+                    }
+                },
+                "actions": {
+                    "Parse_JSON": {
+                    "type": "ParseJson",
+                    "inputs": {
+                        "content": "@triggerBody()",
+                        "schema": {
+                        "properties": {
+                            "alert": {
+                            "properties": {
+                                "alert_id": {
+                                "type": "string"
+                                }
+                            },
+                            "type": "object"
+                            },
+                            "intezer_alert_url": {
+                            "type": "string"
+                            },
+                            "note": {
+                            "type": "string"
+                            },
+                            "source": {
+                            "type": "string"
+                            },
+                            "triage_result": {
+                            "properties": {
+                                "alert_verdict_display": {
+                                "type": "string"
+                                },
+                                "risk_category_display": {
+                                "type": "string"
+                                }
+                            },
+                            "type": "object"
+                            },
+                            "microsoft_sentinel_incident_id": {
+                            "type": "string"
+                            }
+                        },
+                        "type": "object"
+                        }
+                    },
+                    "runAfter": {}
+                    },
+                    "Condition_-_is_msd_alert": {
+                    "type": "If",
+                    "description": "",
+                    "expression": {
+                        "and": [
+                        {
+                            "equals": [
+                            "@body('Parse_JSON')?['source']",
+                            "msd"
+                            ]
+                        }
+                        ]
+                    },
                     "actions": {
-                        "Add_comment_to_incident_(V3)": {
-                            "inputs": {
-                                "body": {
-                                    "incidentArmId": "@body('Alert_-_Get_incident')?['id']",
-                                    "message": "<p>@{body('Parse_JSON')?['note']}</p>"
-                                },
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/Incidents/Comment"
-                            },
-                            "runAfter": {
-                                "Alert_-_Get_incident": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection"
-                        },
-                        "Alert_-_Get_incident": {
-                            "inputs": {
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuresentinel']['connectionId']"
-                                    }
-                                },
-                                "method": "get",
-                                "path": "/Incidents/subscriptions/@{encodeURIComponent(parameters('$workspaceSubscriptionId')['workspaceSubscriptionId'])}/resourceGroups/@{encodeURIComponent(parameters('$resourceGroupName')['resourceGroupName'])}/workspaces/@{encodeURIComponent(parameters('$resourceWorkspaceId')['resourceWorkspaceId'])}/alerts/@{encodeURIComponent(body('Parse_JSON_2')?['SystemAlertId'])}"
-
-                            },
-                            "runAfter": {
-                                "Parse_JSON_2": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ApiConnection"
-                        },
-                        "Compose_-_remove_\"da\"_from_alert_id_to_make_if_sentinel_alert_id": {
-                            "inputs": "@substring(variables('edr_alert_id'),2,sub(length(variables('edr_alert_id')),2))",
-                            "runAfter": {
-                                "Initialize_edr_alert_id": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Compose"
-                        },
-                        "Condition": {
-                            "actions": {
-                                "Terminate": {
-                                    "inputs": {
-                                        "runStatus": "Cancelled"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Terminate"
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "not": {
-                                            "equals": [
-                                                "@body('Parse_JSON')?['source']",
-                                                "msd"
-                                            ]
-                                        }
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Parse_JSON": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
-                        "Condition_2": {
-                            "actions": {
-                                "Terminate_2": {
-                                    "inputs": {
-                                        "runStatus": "Cancelled"
-                                    },
-                                    "runAfter": {},
-                                    "type": "Terminate"
-                                }
-                            },
-                            "expression": {
-                                "and": [
-                                    {
-                                        "equals": [
-                                            "@length(body('Run_query_and_list_results')?['value'])",
-                                            0
-                                        ]
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Run_query_and_list_results": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "If"
-                        },
                         "Delay": {
-                            "inputs": {
-                                "interval": {
-                                    "count": 15,
-                                    "unit": "Minute"
-                                }
-                            },
-                            "runAfter": {
-                                "Compose_-_remove_\"da\"_from_alert_id_to_make_if_sentinel_alert_id": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Wait"
-                        },
-                        "Initialize_edr_alert_id": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "edr_alert_id",
-                                        "type": "string",
-                                        "value": "@body('Parse_JSON')?['alert']?['alert_id']"
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Condition": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable": {
-                            "inputs": {
-                                "variables": [
-                                    {
-                                        "name": "alert_to_check",
-                                        "type": "object",
-                                        "value": "@first(body('Run_query_and_list_results')?['value'])"
-                                    }
-                                ]
-                            },
-                            "runAfter": {
-                                "Condition_2": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "InitializeVariable"
-                        },
-                        "Parse_JSON": {
-                            "inputs": {
-                                "content": "@triggerBody()",
-                                "schema": {
-                                    "properties": {
-                                        "alert": {
-                                            "properties": {
-                                                "alert_id": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        },
-                                        "intezer_alert_url": {
-                                            "type": "string"
-                                        },
-                                        "note": {
-                                            "type": "string"
-                                        },
-                                        "source": {
-                                            "type": "string"
-                                        },
-                                        "triage_result": {
-                                            "properties": {
-                                                "alert_verdict_display": {
-                                                    "type": "string"
-                                                },
-                                                "risk_category_display": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "runAfter": {},
-                            "type": "ParseJson"
-                        },
-                        "Parse_JSON_2": {
-                            "inputs": {
-                                "content": "@variables('alert_to_check')",
-                                "schema": {
-                                    "properties": {
-                                        "SystemAlertId": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "runAfter": {
-                                "Initialize_variable": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ParseJson"
+                        "type": "Wait",
+                        "inputs": {
+                            "interval": {
+                            "count": 15,
+                            "unit": "Minute"
+                            }
+                        }
                         },
                         "Run_query_and_list_results": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['azuremonitorlogs-1']['connectionId']"
+                            }
+                            },
+                            "method": "post",
+                            "body": "SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where VendorOriginalId in(\"@{body('Parse_JSON')?['microsoft_sentinel_incident_id']}\")",
+                            "path": "/queryData",
+                            "queries": {
+                            "subscriptions": "@{parameters('$workspaceSubscriptionId')['workspaceSubscriptionId']}",
+                            "resourcegroups": "@{parameters('$resourceGroupName')['resourceGroupName']}",
+                            "resourcetype": "Log Analytics Workspace",
+                            "resourcename": "@{parameters('$resourceWorkspaceName')['resourceWorkspaceName']}",
+                            "timerange": "Last 30 days"
+                            }
+                        },
+                        "runAfter": {
+                            "Delay": [
+                            "Succeeded"
+                            ]
+                        }
+                        },
+                        "Condition_-_result_found": {
+                        "type": "If",
+                        "expression": {
+                            "and": [
+                            {
+                                "equals": [
+                                "@length(body('Run_query_and_list_results')?['value'])",
+                                0
+                                ]
+                            }
+                            ]
+                        },
+                        "actions": {
+                            "Terminate_-_no_alert_found": {
+                            "type": "Terminate",
                             "inputs": {
-                                "body": "SecurityAlert\n| summarize arg_max(TimeGenerated, *) by SystemAlertId\n| where VendorOriginalId in(\"@{outputs('Compose_-_remove_\"da\"_from_alert_id_to_make_if_sentinel_alert_id')}\")",
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
-                                    }
-                                },
-                                "method": "post",
-                                "path": "/queryData",
-                                "queries": {
-                                    "resourcegroups": "@{parameters('$resourceGroupName')['resourceGroupName']}",
-                                    "resourcename": "@{parameters('$resourceWorkspaceName')['resourceWorkspaceName']}",
-                                    "resourcetype": "Log Analytics Workspace",
-                                    "subscriptions": "@{parameters('$workspaceSubscriptionId')['workspaceSubscriptionId']}",
-                                    "timerange": "Last 7 days"
+                                "runStatus": "Cancelled"
+                            }
+                            }
+                        },
+                        "else": {
+                            "actions": {}
+                        },
+                        "runAfter": {
+                            "Run_query_and_list_results": [
+                            "Succeeded"
+                            ]
+                        }
+                        },
+                        "Parse_JSON_-_found_alert": {
+                        "type": "ParseJson",
+                        "inputs": {
+                            "content": "@first(body('Run_query_and_list_results')?['value'])",
+                            "schema": {
+                            "properties": {
+                                "SystemAlertId": {
+                                "type": "string"
                                 }
                             },
-                            "runAfter": {
-                                "Delay": [
-                                    "Succeeded"
-                                ]
+                            "type": "object"
+                            }
+                        },
+                        "runAfter": {
+                            "Condition_-_result_found": [
+                            "Succeeded"
+                            ]
+                        }
+                        },
+                        "Alert_-_Get_incident": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                            }
                             },
-                            "type": "ApiConnection"
+                            "method": "get",
+                            "path": "/Incidents/subscriptions/@{encodeURIComponent(parameters('$workspaceSubscriptionId')['workspaceSubscriptionId'])}/resourceGroups/@{encodeURIComponent(parameters('$resourceGroupName')['resourceGroupName'])}/workspaces/@{encodeURIComponent(parameters('$resourceWorkspaceId')['resourceWorkspaceId'])}/alerts/@{encodeURIComponent(body('Parse_JSON_-_found_alert')?['SystemAlertId'])}"
+                        },
+                        "runAfter": {
+                            "Parse_JSON_-_found_alert": [
+                            "Succeeded"
+                            ]
+                        }
+                        },
+                        "Add_comment_to_incident_-_msd_source": {
+                        "type": "ApiConnection",
+                        "inputs": {
+                            "host": {
+                            "connection": {
+                                "name": "@parameters('$connections')['azuresentinel']['connectionId']"
+                            }
+                            },
+                            "method": "post",
+                            "body": {
+                            "incidentArmId": "@body('Alert_-_Get_incident')?['id']",
+                            "message": "<p>@{body('Parse_JSON')?['note']}</p>"
+                            },
+                            "path": "/Incidents/Comment"
+                        },
+                        "runAfter": {
+                            "Alert_-_Get_incident": [
+                            "Succeeded"
+                            ]
+                        }
+                        },
+                        "Terminate_if_more_than_100_notes_-_msd": {
+                        "type": "Terminate",
+                        "inputs": {
+                            "runStatus": "Cancelled"
+                        },
+                        "runAfter": {
+                            "Add_comment_to_incident_-_msd_source": [
+                            "Failed"
+                            ]
+                        }
                         }
                     },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "$workspaceSubscriptionId": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "$resourceGroupName": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "$resourceWorkspaceId": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        },
-                        "$resourceWorkspaceName": {
-                            "defaultValue": {},
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "manual": {
+                    "else": {
+                        "actions": {
+                        "Get_incident": {
+                            "type": "ApiConnection",
                             "inputs": {
-                                "schema": {}
+                            "host": {
+                                "connection": {
+                                "name": "@parameters('$connections')['azuresentinel-1']['connectionId']"
+                                }
                             },
-                            "kind": "Http",
-                            "type": "Request"
+                            "method": "post",
+                            "body": {
+                                "incidentArmId": "@body('Parse_JSON')?['microsoft_sentinel_incident_id']"
+                            },
+                            "path": "/Incidents"
+                            }
+                        },
+                        "Add_comment_to_incident__-_non-msd_source": {
+                            "type": "ApiConnection",
+                            "inputs": {
+                            "host": {
+                                "connection": {
+                                "name": "@parameters('$connections')['azuresentinel-1']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "body": {
+                                "incidentArmId": "@body('Get_incident')?['id']",
+                                "message": "<p>@{body('Parse_JSON')?['note']}</p>"
+                            },
+                            "path": "/Incidents/Comment"
+                            },
+                            "runAfter": {
+                            "Get_incident": [
+                                "Succeeded"
+                            ]
+                            }
+                        },
+                        "Terminate_if_more_than_100_notes_-_non-msd": {
+                            "type": "Terminate",
+                            "inputs": {
+                            "runStatus": "Cancelled"
+                            },
+                            "runAfter": {
+                            "Add_comment_to_incident__-_non-msd_source": [
+                                "Failed"
+                            ]
+                            }
                         }
+                        }
+                    },
+                    "runAfter": {
+                        "Parse_JSON": [
+                        "Succeeded"
+                        ]
                     }
+                    }
+                },
+                "outputs": {},
+                "parameters": {
+                    "$workspaceSubscriptionId": {
+                    "defaultValue": {},
+                    "type": "Object"
+                    },
+                    "$resourceGroupName": {
+                    "defaultValue": {},
+                    "type": "Object"
+                    },
+                    "$resourceWorkspaceId": {
+                    "defaultValue": {},
+                    "type": "Object"
+                    },
+                    "$resourceWorkspaceName": {
+                    "defaultValue": {},
+                    "type": "Object"
+                    },
+                    "$connections": {
+                    "type": "Object",
+                    "defaultValue": {}
+                    }
+                }
                 },
                 "parameters": {
                     "$workspaceSubscriptionId": {
