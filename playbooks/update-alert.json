@@ -272,7 +272,7 @@
                             "and": [
                                 {
                                     "equals": [
-                                        "@body('Parse_JSON')?['source']",
+                                        "@body('Parse_JSON')?['sender']",
                                         "msd"
                                     ]
                                 }
@@ -305,6 +305,9 @@
                                         "type": "string"
                                     },
                                     "note": {
+                                        "type": "string"
+                                    },
+                                    "sender": {
                                         "type": "string"
                                     },
                                     "source": {
