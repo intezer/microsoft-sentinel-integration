@@ -124,13 +124,16 @@ After submitting the custom deployment, you need to perform some actions in your
     - On the left menu bar, select **Logic app designer**:<br/>
      ![Image Alt Text](.github/assets/images/sentinel-27.png)
 
-    - Click on the **Connections** step, the one with the warning:<br/>
+    - Click on the **Run query and list results** step, the one with the Invalid connection warning:<br/>
     ![Image Alt Text](.github/assets/images/sentinel-38.png)
+
+    - Click on the **Change connection** button:<br/>
+    ![Image Alt Text](.github/assets/images/sentinel-38-1.png)
 
     - Click on **Add new**:<br/>
     ![Image Alt Text](.github/assets/images/sentinel-39.png)
 
-    - Enter a generic connection name and click **Sign in**:<br/>
+    - Enter a generic connection name, select the **Authentication Type** (Logic App Managed Identity is preferred), and click Sign in:<br/>
     ![Image Alt Text](.github/assets/images/sentinel-40.png)
 
     - After submitting the connection, click **Save** on the left menu:<br/>
